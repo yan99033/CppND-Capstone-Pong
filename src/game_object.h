@@ -43,7 +43,7 @@ protected:
 
 };
 
-
+typedef std::shared_ptr<GameObject> GameObjectPtr;
 
 // class Ball : public GameObject
 // {

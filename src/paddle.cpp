@@ -4,7 +4,9 @@
 Paddle::Paddle(double left, double top, double width, double height,
     double velocity) : GameObject(left, top, ObjectType::ObjPaddle), width_(width), 
     height_(height), velocity_(velocity)
-{}
+{
+    direction_ = PaddleDirection::Stop;
+}
 
 void Paddle::Move()
 {
@@ -30,4 +32,10 @@ void Paddle::Move()
 void Paddle::SetDirection(const PaddleDirection& direction)
 {
     direction_ = direction;
+}
+
+void Paddle::GetSize(double& width, double& height) const
+{
+    width = width_;
+    height = height_;
 }

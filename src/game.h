@@ -24,8 +24,8 @@ class Game {
   SDL_Point food;
 
   // std::vector<std::unique_ptr<GameObject>> game_objects_;
-  std::shared_ptr<GameObject> left_paddle_;
-  std::shared_ptr<GameObject> right_paddle_;
+  PaddlePtr left_paddle_;
+  PaddlePtr right_paddle_;
 
   std::random_device dev;
   std::mt19937 engine;

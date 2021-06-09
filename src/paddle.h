@@ -7,7 +7,7 @@ enum PaddleDirection
 {
     Up,
     Down,
-    stop,
+    Stop,
 };
 
 class Paddle : public GameObject
@@ -19,6 +19,7 @@ public:
 
     // set direction
     void SetDirection(const PaddleDirection& direction);
+    void GetSize(double& width, double& height) const;
 
     // Typical behavoiur methods
     void Move();
@@ -28,5 +29,7 @@ private:
     double velocity_;           // rate at which the paddle is moving
     PaddleDirection direction_; // up, down or stop
 };
+
+typedef std::shared_ptr<Paddle> PaddlePtr;
 
 #endif

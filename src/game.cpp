@@ -13,8 +13,8 @@ Game::Game(std::size_t grid_width, std::size_t grid_height)
   PlaceFood();
 
   // Create paddles and a ball (hardcoded number for testing purpose only)
-  left_paddle_ = std::make_shared<Paddle>(10.0, 30.0, 10.0, 30.0, 3.0);
-  right_paddle_ = std::make_shared<Paddle>(500.0, 30.0, 10.0, 30.0, 3.0);
+  left_paddle_ = std::make_shared<Paddle>(100.0, 170.0, 40.0, 300.0, 3.0);
+  right_paddle_ = std::make_shared<Paddle>(500.0, 170.0, 40.0, 300.0, 3.0);
 }
 
 void Game::Run(Controller const &controller, Renderer &renderer,
@@ -32,7 +32,7 @@ void Game::Run(Controller const &controller, Renderer &renderer,
     // Input, Update, Render - the main game loop.
     controller.HandleInput(running, snake);
     Update();
-    renderer.Render(snake, food);
+    renderer.Render(snake, food, left_paddle_, right_paddle_);
 
     frame_end = SDL_GetTicks();
 
