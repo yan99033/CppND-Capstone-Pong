@@ -1,12 +1,16 @@
 #ifndef GAME_H
 #define GAME_H
 
+#include <memory>
+
 #include <random>
 #include "SDL.h"
 #include "controller.h"
 #include "renderer.h"
 #include "snake.h"
+#include "game_object.h"
 
+// class Paddle;
 class Game {
  public:
   Game(std::size_t grid_width, std::size_t grid_height);
@@ -18,6 +22,10 @@ class Game {
  private:
   Snake snake;
   SDL_Point food;
+
+  // std::vector<std::unique_ptr<GameObject>> game_objects_;
+  std::shared_ptr<GameObject> left_paddle_;
+  std::shared_ptr<GameObject> right_paddle_;
 
   std::random_device dev;
   std::mt19937 engine;

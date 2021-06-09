@@ -2,12 +2,19 @@
 #include <iostream>
 #include "SDL.h"
 
+#include "paddle.h"
+
+
 Game::Game(std::size_t grid_width, std::size_t grid_height)
     : snake(grid_width, grid_height),
       engine(dev()),
       random_w(0, static_cast<int>(grid_width - 1)),
       random_h(0, static_cast<int>(grid_height - 1)) {
   PlaceFood();
+
+  // Create paddles and a ball (hardcoded number for testing purpose only)
+  left_paddle_ = std::make_shared<Paddle>(10.0, 30.0, 10.0, 30.0, 3.0);
+  right_paddle_ = std::make_shared<Paddle>(500.0, 30.0, 10.0, 30.0, 3.0);
 }
 
 void Game::Run(Controller const &controller, Renderer &renderer,
