@@ -26,6 +26,10 @@ void Game::Run(Controller const &controller, Renderer &renderer,
   int frame_count = 0;
   bool running = true;
 
+  Controller2 controller2(left_paddle_, right_paddle_);
+  // threads_.emplace_back(std::thread(&Controller2::GetKeyboardInputs, controller2));
+  std::thread t = std::thread(&Controller2::GetKeyboardInputs, std::ref(controller2));
+
   while (running) {
     frame_start = SDL_GetTicks();
 
@@ -55,6 +59,11 @@ void Game::Run(Controller const &controller, Renderer &renderer,
       SDL_Delay(target_frame_duration - frame_duration);
     }
   }
+
+  t.join();
+  // join all threads
+  // for (auto& t : threads_)
+  //   t.join();
 }
 
 void Game::PlaceFood() {

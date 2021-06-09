@@ -2,6 +2,7 @@
 #define GAME_H
 
 #include <memory>
+#include <thread>
 
 #include <random>
 #include "SDL.h"
@@ -36,6 +37,9 @@ class Game {
 
   void PlaceFood();
   void Update();
+
+  // Create threads and destroy upon exit
+  std::vector<std::thread> threads_;
 };
 
 #endif
