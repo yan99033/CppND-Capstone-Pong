@@ -10,8 +10,11 @@ Paddle::Paddle(double left, double top, double width, double height,
 
 void Paddle::Move()
 {
+    // Make sure the screen size is set 
+    // so that paddle stays in the window
     assert(set_screen_size_);
 
+    std::lock_guard<std::mutex> lck(mutex_);
     if (direction_ == PaddleDirection::Up)
     {
         pos_y_ -= velocity_;
@@ -31,6 +34,7 @@ void Paddle::Move()
 
 void Paddle::SetDirection(const PaddleDirection& direction)
 {
+    std::lock_guard<std::mutex> lck(mutex_);
     direction_ = direction;
 }
 

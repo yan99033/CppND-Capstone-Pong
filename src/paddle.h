@@ -1,6 +1,8 @@
 #ifndef PADDLE_H
 #define PADDLE_H
 
+#include <mutex>
+
 #include "game_object.h"
 
 enum PaddleDirection
@@ -28,6 +30,7 @@ private:
     double width_, height_;     // Paddle size
     double velocity_;           // rate at which the paddle is moving
     PaddleDirection direction_; // up, down or stop
+    std::mutex mutex_;
 };
 
 typedef std::shared_ptr<Paddle> PaddlePtr;
