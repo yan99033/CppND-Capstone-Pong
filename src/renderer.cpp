@@ -38,7 +38,7 @@ Renderer::~Renderer() {
   SDL_Quit();
 }
 
-void Renderer::Render(Snake const snake, SDL_Point const &food, PaddlePtr left_paddle, PaddlePtr right_paddle) {
+void Renderer::Render(Snake const snake, SDL_Point const &food, const PaddlePtr& left_paddle, const PaddlePtr& right_paddle) {
   SDL_Rect block;
   block.w = screen_width / grid_width;
   block.h = screen_height / grid_height;
@@ -84,21 +84,21 @@ void Renderer::UpdateWindowTitle(int score, int fps) {
   SDL_SetWindowTitle(sdl_window, title.c_str());
 }
 
-void Renderer::DrawPaddle(PaddlePtr paddle)
+void Renderer::DrawPaddle(const PaddlePtr& paddle)
 {
   SDL_Rect block;
-  double width, height;
-  double x, y;
+  int width, height;
+  int x, y;
 
   // Get attributes
   paddle->GetSize(width, height);
   paddle->GetPosition(x, y);
 
   // Set attributes
-  block.x = static_cast<int>(x);
-  block.y = static_cast<int>(y);
-  block.w = static_cast<int>(width);
-  block.h = static_cast<int>(height);
+  block.x = x;
+  block.y = y;
+  block.w = width;
+  block.h = height;
 
   SDL_SetRenderDrawColor(sdl_renderer, 0xFF, 0xCC, 0x00, 0xFF);
   SDL_RenderFillRect(sdl_renderer, &block);
