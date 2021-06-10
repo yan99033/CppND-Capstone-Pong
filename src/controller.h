@@ -36,12 +36,15 @@ private:
 
 class Controller2 {
 public:
-  // Constructor
-  Controller2(PaddlePtr& left_paddle, PaddlePtr& right_paddle);
+  Controller2();
+  ~Controller2();
 
   // Typical behaviour method 
   void GetKeyboardInputs();
-  
+
+  // Getter/setter
+  void SetPaddleObjects(PaddlePtr& left_paddle, PaddlePtr& right_paddle);
+  void Stop();
   
   // PaddleDirection GetLeftPaddleControl();
   // PaddleDirection GetRightPaddleControl();
@@ -49,6 +52,11 @@ public:
 private:
   PaddlePtr left_paddle_;
   PaddlePtr right_paddle_;
+
+  bool ShouldQuit();
+  
+  bool exit_;
+  std::mutex exit_mtx_;
 
   // // keyboard control signals
   // ControlSignalQueue<PaddleDirection> left_signal_;

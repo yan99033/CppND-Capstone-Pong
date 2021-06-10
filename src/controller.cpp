@@ -72,19 +72,30 @@ void ControlSignalQueue<T>::Send(T &&msg)
     condition_.notify_one();
 }
 
-// PaddleDirection Controller2::GetLeftPaddleControl()
-// {
-
-// }
-
-Controller2::Controller2(PaddlePtr& left_paddle, PaddlePtr& right_paddle) :
-  left_paddle_(left_paddle), right_paddle_(right_paddle)
+Controller2::Controller2() : exit_(false)
 {}
+
+Controller2::~Controller2()
+{
+  Stop();
+}
+
+void Controller2::Stop()
+{
+  std::lock_guard<std::mutex> lck(exit_mtx_);
+  std::cout << "Stop: " << exit_ << std::endl; 
+  exit_ = true;
+}
+
+bool Controller2::ShouldQuit()
+{
+  std::lock_guard<std::mutex> lck(exit_mtx_);
+  return exit_;
+}
 
 /* An infinite while-loop running in a separate thread
 is used to detect key presses so that we can modify the 
 location of the paddles accordingly
-
 Get key presses without using events
 https://stackoverflow.com/questions/17580166/sdl-get-keyboard-state-without-using-events
  */
@@ -94,33 +105,55 @@ void Controller2::GetKeyboardInputs()
   assert(left_paddle_ != nullptr);
   assert(right_paddle_ != nullptr);
 
-  SDL_Event e;
+  std::cout << "Started keyboard input thread\n";
+
+  
   const uint8_t* keys = SDL_GetKeyboardState(NULL);
-  while (SDL_PollEvent(&e)) {
-    if (e.type == SDL_QUIT) {
-      // exit the while-loop
-      break;
-    }
-    
+  while (!ShouldQuit()) {
     // Update the keyboard state
     SDL_PumpEvents();
 
     // if both up and down keys are pressed (cancel out)
     if (keys[SDL_SCANCODE_Q] && !keys[SDL_SCANCODE_A])
+    {
       left_paddle_->SetDirection(PaddleDirection::Up);
+      // std::cout << "Q key detected \n"; 
+    }
     else if (keys[SDL_SCANCODE_A] && !keys[SDL_SCANCODE_Q])
+    {
       left_paddle_->SetDirection(PaddleDirection::Down);
+      // std::cout << "A key detected \n"; 
+    }
     else
-      left_paddle_->SetDirection(PaddleDirection::Stop);
-
+    {
+      left_paddle_->SetDirection(PaddleDirection::Stop); 
+      // std::cout << "no key detected\n";
+    }
     if (keys[SDL_SCANCODE_P] && !keys[SDL_SCANCODE_L])
+    {
       right_paddle_->SetDirection(PaddleDirection::Up);
+      // std::cout << "P key detected \n";
+    }
     else if (keys[SDL_SCANCODE_L] && !keys[SDL_SCANCODE_P])
+    {
       right_paddle_->SetDirection(PaddleDirection::Down);
+      // std::cout << "L key detected \n";
+    }
     else
+    {
       right_paddle_->SetDirection(PaddleDirection::Stop);
+      // std::cout << "No key detected \n";
+    }
 
     // Free CPU
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
   }
+
+  std::cout << "Exited keyboard input thread\n";
+}
+
+void Controller2::SetPaddleObjects(PaddlePtr& left_paddle, PaddlePtr& right_paddle)
+{
+  left_paddle_ = left_paddle;
+  right_paddle_ = right_paddle;
 }
