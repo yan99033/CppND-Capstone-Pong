@@ -12,12 +12,21 @@ Game::Game(std::size_t grid_width, std::size_t grid_height)
       random_h(0, static_cast<int>(grid_height - 1)) {
   PlaceFood();
 
-  // Create paddles and a ball (hardcoded number for testing purpose only)
-  left_paddle_ = std::make_shared<Paddle>(100.0, 170.0, 40.0, 300.0, 3.0);
-  right_paddle_ = std::make_shared<Paddle>(500.0, 170.0, 40.0, 300.0, 3.0);
+  /**Create game objects**/
+  // Create paddles 
+  int paddle_width = 25;
+  int paddle_height = 200;
+  int paddle_velocity = 10;
+  left_paddle_ = std::make_shared<Paddle>(ObjectType::LeftPaddle, paddle_width, paddle_height, paddle_velocity);
+  right_paddle_ = std::make_shared<Paddle>(ObjectType::RightPaddle, paddle_width, paddle_height, paddle_velocity);
+
+  // Create ball
+
+  /**Create game objects**/
+
 }
 
-void Game::Run(Controller const &controller, Renderer &renderer,
+void Game::Run(Controller const &controller, Controller2 & controller2, Renderer &renderer,
                std::size_t target_frame_duration) {
   Uint32 title_timestamp = SDL_GetTicks();
   Uint32 frame_start;
@@ -26,16 +35,24 @@ void Game::Run(Controller const &controller, Renderer &renderer,
   int frame_count = 0;
   bool running = true;
 
-  Controller2 controller2(left_paddle_, right_paddle_);
-  // threads_.emplace_back(std::thread(&Controller2::GetKeyboardInputs, controller2));
-  std::thread t = std::thread(&Controller2::GetKeyboardInputs, std::ref(controller2));
+  controller2.SetPaddleObjects(left_paddle_, right_paddle_);
+  threads_.emplace_back(std::thread(&Controller2::GetKeyboardInputs, std::ref(controller2)));
+  // std::thread t = std::thread(&Controller2::GetKeyboardInputs, std::ref(controller2));
 
+  // Input, Update, Render - the main game loop.
   while (running) {
     frame_start = SDL_GetTicks();
 
-    // Input, Update, Render - the main game loop.
-    controller.HandleInput(running, snake);
+    // Check if an exit signal is received
+    SDL_PollEvent(&e);
+    if (e.type == SDL_QUIT || (e.type == SDL_WINDOWEVENT && e.window.event == SDL_WINDOWEVENT_CLOSE)) {
+      // exit the while-loop and kill all the threads
+      controller2.Stop();
+      running = false;
+    }
+    
     Update();
+    
     renderer.Render(snake, food, left_paddle_, right_paddle_);
 
     frame_end = SDL_GetTicks();
@@ -60,10 +77,10 @@ void Game::Run(Controller const &controller, Renderer &renderer,
     }
   }
 
-  t.join();
+  // t.join();
   // join all threads
-  // for (auto& t : threads_)
-  //   t.join();
+  for (auto& t : threads_)
+    t.join();
 }
 
 void Game::PlaceFood() {
@@ -83,6 +100,9 @@ void Game::PlaceFood() {
 
 void Game::Update() {
   if (!snake.alive) return;
+
+  left_paddle_->Move();
+  right_paddle_->Move();
 
   snake.Update();
 

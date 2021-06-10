@@ -15,7 +15,7 @@
 class Game {
  public:
   Game(std::size_t grid_width, std::size_t grid_height);
-  void Run(Controller const &controller, Renderer &renderer,
+  void Run(Controller const &controller, Controller2& controller2, Renderer &renderer,
            std::size_t target_frame_duration);
   int GetScore() const;
   int GetSize() const;
@@ -24,9 +24,14 @@ class Game {
   Snake snake;
   SDL_Point food;
 
+  SDL_Event e;
+
   // std::vector<std::unique_ptr<GameObject>> game_objects_;
   PaddlePtr left_paddle_;
   PaddlePtr right_paddle_;
+
+  int left_score_;
+  int right_score_;
 
   std::random_device dev;
   std::mt19937 engine;
@@ -34,6 +39,8 @@ class Game {
   std::uniform_int_distribution<int> random_h;
 
   int score{0};
+
+  
 
   void PlaceFood();
   void Update();
