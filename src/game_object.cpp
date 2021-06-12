@@ -1,7 +1,7 @@
 #include "game_object.h"
 #include <cassert>
 
-// Static variable definition
+// Static variable initialization
 bool GameObject::set_screen_size_ = false;
 int GameObject::screen_width_ = 0;
 int GameObject::screen_height_ = 0;
@@ -32,21 +32,18 @@ void GameObject::SetPaddleOffset(int offset)
     paddle_offset_ = offset;
 }
 
-void GameObject::GetPosition(int& x, int& y) const
+void GameObject::GetPosition(int& x, int& y)
 {
+    std::lock_guard<std::mutex> lck(pos_mutex_);
     x = pos_x_;
     y = pos_y_;
 }
 
 void GameObject::SetPosition(int x, int y)
 {
+    std::lock_guard<std::mutex> lck(pos_mutex_);
     pos_x_ = x;
     pos_y_ = y;
 }
-
-// ObjectType GameObject::GetType() const
-// {
-//     return obj_type_;
-// }
 
 
