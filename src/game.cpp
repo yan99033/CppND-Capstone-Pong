@@ -1,59 +1,67 @@
-#include "game.h"
 #include <iostream>
+
 #include "SDL.h"
 
 #include "paddle.h"
+#include "game.h"
 
-
-Game::Game(std::size_t grid_width, std::size_t grid_height)
-    : snake(grid_width, grid_height),
-      engine(dev()),
-      random_w(0, static_cast<int>(grid_width - 1)),
-      random_h(0, static_cast<int>(grid_height - 1)) {
-  PlaceFood();
-
+Game::Game(const std::size_t max_score)
+{
   /**Create game objects**/
   // Create paddles 
-  int paddle_width = 25;
-  int paddle_height = 200;
-  int paddle_velocity = 10;
-  left_paddle_ = std::make_shared<Paddle>(ObjectType::LeftPaddle, paddle_width, paddle_height, paddle_velocity);
-  right_paddle_ = std::make_shared<Paddle>(ObjectType::RightPaddle, paddle_width, paddle_height, paddle_velocity);
+  left_paddle_ = std::make_unique<Paddle>(PaddleLocation::LeftPaddle, paddle_width, paddle_height, paddle_velocity);
+  right_paddle_ = std::make_unique<Paddle>(PaddleLocation::RightPaddle, paddle_width, paddle_height, paddle_velocity);
 
   // Create ball
-
+  ball_ = std::make_unique<Ball>(radius, x_velocity, y_velocity);
   /**Create game objects**/
 
+  score_ = Score(max_score); // Move Assignment Operator
 }
 
-void Game::Run(Controller const &controller, Controller2 & controller2, Renderer &renderer,
-               std::size_t target_frame_duration) {
+void Game::Run(Controller & controller, CollisionEngine& collision_engine, Renderer &renderer, 
+               std::size_t target_frame_duration) 
+{
   Uint32 title_timestamp = SDL_GetTicks();
   Uint32 frame_start;
   Uint32 frame_end;
   Uint32 frame_duration;
   int frame_count = 0;
-  bool running = true;
+  int scores[2] {0, 0};
+  Winner player;
 
-  controller2.SetPaddleObjects(left_paddle_, right_paddle_);
-  threads_.emplace_back(std::thread(&Controller2::GetKeyboardInputs, std::ref(controller2)));
-  // std::thread t = std::thread(&Controller2::GetKeyboardInputs, std::ref(controller2));
+  /** Launch threads **/
+  controller.SetPaddlePointers(left_paddle_.get(), right_paddle_.get());
+  threads_.emplace_back(std::thread(&Controller::GetKeyboardInputs, std::ref(controller)));
+  
+  collision_engine.SetGameObjects(left_paddle_.get(), right_paddle_.get(), ball_.get());
+  threads_.emplace_back(std::thread(&CollisionEngine::Run, std::ref(collision_engine)));
+
+  score_.SetCollisionEngine(&collision_engine);
+  threads_.emplace_back(std::thread(&Score::UpdateLoop, std::ref(score_)));
+  /** Launch threads **/
 
   // Input, Update, Render - the main game loop.
-  while (running) {
+  while (true) {
     frame_start = SDL_GetTicks();
 
-    // Check if an exit signal is received
+    // Check if an exit/interrupt signal is received
     SDL_PollEvent(&e);
-    if (e.type == SDL_QUIT || (e.type == SDL_WINDOWEVENT && e.window.event == SDL_WINDOWEVENT_CLOSE)) {
-      // exit the while-loop and kill all the threads
-      controller2.Stop();
-      running = false;
-    }
+    if (e.type == SDL_QUIT || (e.type == SDL_WINDOWEVENT && e.window.event == SDL_WINDOWEVENT_CLOSE)) 
+      break;
     
+    // Update game objects
     Update();
+
+    // Check players' scores
+    score_.GetScore(*scores, *(scores+1));
+    score_.IsWin(player);
     
-    renderer.Render(snake, food, left_paddle_, right_paddle_);
+    // Render frame
+    if (player == Winner::None)
+      renderer.Render(left_paddle_.get(), right_paddle_.get(), ball_.get(), scores);
+    else
+      renderer.Render(player);
 
     frame_end = SDL_GetTicks();
 
@@ -64,7 +72,7 @@ void Game::Run(Controller const &controller, Controller2 & controller2, Renderer
 
     // After every second, update the window title.
     if (frame_end - title_timestamp >= 1000) {
-      renderer.UpdateWindowTitle(score, frame_count);
+      renderer.UpdateWindowTitle(frame_count);
       frame_count = 0;
       title_timestamp = frame_end;
     }
@@ -77,47 +85,27 @@ void Game::Run(Controller const &controller, Controller2 & controller2, Renderer
     }
   }
 
-  // t.join();
-  // join all threads
+  // Stop the threads
+  controller.Stop();
+  collision_engine.Stop();
+  score_.Stop();
+
+  // Thread barrier: join all threads
   for (auto& t : threads_)
     t.join();
-}
-
-void Game::PlaceFood() {
-  int x, y;
-  while (true) {
-    x = random_w(engine);
-    y = random_h(engine);
-    // Check that the location is not occupied by a snake item before placing
-    // food.
-    if (!snake.SnakeCell(x, y)) {
-      food.x = x;
-      food.y = y;
-      return;
-    }
-  }
+    
 }
 
 void Game::Update() {
-  if (!snake.alive) return;
-
   left_paddle_->Move();
   right_paddle_->Move();
 
-  snake.Update();
+  // // Check if ball touches left/right edge
+  bool should_reset;
+  score_.CheckBallOnLeftRight(should_reset);
 
-  int new_x = static_cast<int>(snake.head_x);
-  int new_y = static_cast<int>(snake.head_y);
+  if (should_reset)
+    ball_->ResetBallPosition();
+  ball_->Move();
 
-  // Check if there's food over here
-  if (food.x == new_x && food.y == new_y) {
-    score++;
-    PlaceFood();
-    // Grow snake and increase speed.
-    snake.GrowBody();
-    snake.speed += 0.02;
-  }
 }
-
-int Game::GetScore() const { return score; }
-int Game::GetSize() const { return snake.size; }
