@@ -181,11 +181,7 @@ void Renderer::DrawScore(const int score, bool is_right)
 void Renderer::DrawWinner(const Winner& player)
 {
   // Generate player name
-  std::string player_name;
-  if (player == Winner::Player1)
-    player_name = "Player 1";
-  else
-    player_name = "Player 2";
+  std::string player_name = (player == Winner::Player1) ? player_1_ : player_2_;
 
   // Create surfaces from text
   SDL_Surface* top_surface_msg =

@@ -65,6 +65,10 @@ class Renderer {
   const SDL_Colour score_rgb_{255, 255, 255};
   const SDL_Colour winner_rgb_{0, 255, 0};
   const SDL_Colour win_rgb_{255, 155, 255};
+
+  // TODO: Let the players type their name
+  std::string player_1_{"Player 1"};
+  std::string player_2_{"Player 2"};
 };
 
 #endif
