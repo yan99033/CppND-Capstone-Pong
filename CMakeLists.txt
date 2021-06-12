@@ -13,9 +13,21 @@ project(SDL2Test)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
 find_package(SDL2 REQUIRED)
+find_package(SDL2_ttf REQUIRED)
 find_package(Threads)
-include_directories(${SDL2_INCLUDE_DIRS} src)
+include_directories(${SDL2_INCLUDE_DIRS} include)
 
-add_executable(PongGame src/main.cpp src/game.cpp src/controller.cpp src/renderer.cpp src/snake.cpp src/game_object.cpp src/paddle.cpp)
+LIST(APPEND SOURCE_CPPS
+    src/game.cpp
+    src/controller.cpp 
+    src/renderer.cpp 
+    src/game_object.cpp 
+    src/paddle.cpp 
+    src/ball.cpp 
+    src/collision_engine.cpp
+    src/score.cpp
+)
+
+add_executable(PongGame src/main.cpp ${SOURCE_CPPS})
 string(STRIP ${SDL2_LIBRARIES} SDL2_LIBRARIES)
-target_link_libraries(PongGame ${SDL2_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(PongGame ${SDL2_LIBRARIES} ${SDL2_TTF_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
