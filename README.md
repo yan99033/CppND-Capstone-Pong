@@ -6,7 +6,7 @@ The keyboard controls for the paddle are as follows:
 * 'q' / 'a': up/down for the left paddle
 * 'p' / 'l': up/down for the right paddle
 
-Two players compete against each other by preventing the ball from moving beyond their paddle.
+Two players compete against each other by preventing the ball from moving beyond their paddle. The game ends when a player reaches 10 points.
 
 
 <img src="pong_game.gif"/>
