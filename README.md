@@ -6,17 +6,10 @@ The keyboard controls for the paddle are as follows:
 * 'q' / 'a': up/down for the left paddle
 * 'p' / 'l': up/down for the right paddle
 
-Two players compete against each other by preventing the ball from moving beyond their paddle
-
-This project is created to showcase the ability to build a C++ application based on the lessons learned throughout the [Udacity C++ Nanodegree Program](https://www.udacity.com/course/c-plus-plus-nanodegree--nd213).
-
-## Credit
-This project is based on the starter repo for the Capstone project in the [Udacity C++ Nanodegree Program](https://www.udacity.com/course/c-plus-plus-nanodegree--nd213). 
+Two players compete against each other by preventing the ball from moving beyond their paddle.
 
 
-
-
-<img src="snake_game.gif"/>
+<img src="pong_game.gif"/>
 
 ## Dependencies for Running Locally
 * cmake >= 3.7
@@ -28,6 +21,11 @@ This project is based on the starter repo for the Capstone project in the [Udaci
 * SDL2 >= 2.0
   * All installation instructions can be found [here](https://wiki.libsdl.org/Installation)
   >Note that for Linux, an `apt` or `apt-get` installation is preferred to building from source. 
+* SDL2_ttf >= 2.0
+  * All installation instructions can be found [here](https://www.libsdl.org/projects/SDL_ttf/)
+  >Note that for Linux, an `apt` or `apt-get` [installation](https://packages.ubuntu.com/search?keywords=libsdl2-ttf) is preferred to building from source.
+  
+  >Use **SDL2_ttf**, not SDL_ttf
 * gcc/g++ >= 5.4
   * Linux: gcc / g++ is installed by default on most Linux distros
   * Mac: same deal as make - [install Xcode command line tools](https://developer.apple.com/xcode/features/)
@@ -39,8 +37,31 @@ This project is based on the starter repo for the Capstone project in the [Udaci
 2. Make a build directory in the top level directory: `mkdir build && cd build`
 3. Compile: `cmake .. && make`
 4. Run it: `./PongGame`.
+>NOTE: Segmentation fault might occur due to font not being loaded properly, in which case you want to make sure that **SDL2_ttf** is used during compilation and/or set the filenames to absolute paths (renderer.h Line 54 and 55). 
+
+## Rubric requirements
+1. >Loops, Functions, I/O
+    * The project accepts user input and processes the input (see Controller::GetKeyboardInputs).
+2. >Object Oriented Programming
+    * The project uses Object Oriented Programming techniques.
+    * Classes use appropriate access specifiers for class members.
+    * Class constructors utilize member initialization lists.
+    * Classes abstract implementation details from their interfaces (see Renderer class).
+    * Classes follow an appropriate inheritance hierarchy (see GameObject, Paddle and Ball class).
+    * Overloaded functions allow the same function to operate on different parameters (see Renderer::Render functions).
+    * Derived class functions override virtual base class functions (see Paddle::Move and Ball::Move).
+3. >Memory Management
+    * The project follows the Rule of 5 (see Score class).
+    * The project uses smart pointers instead of raw pointers (See Game::left_paddle_ and Game::right_paddle_).
+4. > Concurrency
+    * The project uses multithreading (see Game::Run in which 3 threads is running in parallel alongside the game thread).
+    * A mutex or lock is used in the project (see Controller, CollisionEngine, Paddle, and Ball class).
+    * A condition variable is used in the project (see collision_engine.h SignalQueue class). 
 
 
+
+## Acknowledgement
+This project is based on the starter repo for the Capstone project in the [Udacity C++ Nanodegree Program](https://www.udacity.com/course/c-plus-plus-nanodegree--nd213). 
 ## CC Attribution-ShareAlike 4.0 International
 
 
